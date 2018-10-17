@@ -1,0 +1,10 @@
+eclipse.preferences.version=1
+encoding//src/main/java/com/bosh/entity/QuarkResult.java=UTF-8
+encoding//src/main/java/com/bosh/entity/User.java=UTF-8
+encoding//src/main/java/com/bosh/utils/CookieUtils.java=UTF-8
+encoding//src/main/java/com/bosh/utils/HttpClientUtils.java=UTF-8
+encoding//src/main/resources/application.properties=UTF-8
+encoding//src/main/resources/static/css/global.css=UTF-8
+encoding//src/main/resources/templates/common=UTF-8
+encoding//src/main/resources/templates/common/footer.html=UTF-8
+encoding//src/main/resources/templates/common/header.html=UTF-8
