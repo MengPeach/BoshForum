@@ -31,8 +31,7 @@
 <script>
     //获取用户信息渲染页面
     var htm = "";
-    //quark_getUser_api + getCookie()
-    $.get(quark_getUser_api ,function (data) {
+    $.get(quark_getUser_api + getCookie(),function (data) {
         if (data.status == 200){
             var count = data.data.messagecount;
             if (count!=0){

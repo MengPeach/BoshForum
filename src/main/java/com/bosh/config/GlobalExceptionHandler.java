@@ -2,6 +2,7 @@ package com.bosh.config;
 
 import javax.servlet.http.HttpServletRequest;
 
+import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.servlet.ModelAndView;
 
@@ -10,6 +11,7 @@ import org.springframework.web.servlet.ModelAndView;
  * @author wangmt
  *
  */
+@ControllerAdvice
 public class GlobalExceptionHandler {
 	public static final String DEFAULT_ERROR_VIEW = "error";
 
