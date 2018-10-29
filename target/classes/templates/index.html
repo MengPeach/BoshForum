@@ -21,11 +21,13 @@
 					    <a href="/index?type=good">精品帖</a>
 						<a href="/index?type=top">置顶帖</a>
 					</span>
+					<!-- 
 					<form action="/index" method="get" class="fly-search">
 						<i class="iconfont icon-sousuo"></i> <input class="layui-input"
 							autocomplete="off" placeholder="搜索内容，回车跳转" type="text"
 							name="search">
 					</form>
+					 -->
 					<a th:href="@{/posts/add}" class="layui-btn jie-add">发布帖子</a>
 				</div>
 
@@ -102,7 +104,8 @@
     <!--根据url param 翻页获取信息-->
     function loadPosts(laytpl, laypage, pageNo, renderpager) {
         var type = $.getUrlParam('type');
-        var search =$.getUrlParam('search');
+        var search = $.getUrlParam('search');
+        console.log("搜索框内容："+search);
         $.get(quark_posts_get_api, {
             pageNo: pageNo,
             length: 15,

@@ -3,6 +3,7 @@
  */
 package com.bosh.restcontroller;
 
+import java.io.UnsupportedEncodingException;
 import java.util.HashMap;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,94 +33,96 @@ import com.bosh.service.UserService;
  */
 @RestController
 @RequestMapping("/posts")
-public class PostsController extends BaseController { 
-	
+public class PostsController extends BaseController {
+
 	@Autowired
-    private UserService userService;
+	private UserService userService;
 
-    @Autowired
-    private LabelService labelService;
+	@Autowired
+	private LabelService labelService;
 
-    @Autowired
-    private PostsService postsService;
+	@Autowired
+	private PostsService postsService;
 
-    @Autowired
-    private ReplyService replyService;
+	@Autowired
+	private ReplyService replyService;
 
-        @PostMapping
-    public QuarkResult CreatePosts(final Posts posts, final String token, final Integer labelId) {
-        QuarkResult result = restProcessor(() -> {
+	@PostMapping
+	public QuarkResult CreatePosts(final Posts posts, final String token, final Integer labelId) {
+		QuarkResult result = restProcessor(() -> {
 
-            if (token == null) return QuarkResult.warn("请先登录！");
+			if (token == null)
+				return QuarkResult.warn("请先登录！");
 
-            User userbytoken = userService.getUserByToken(token);
-            if (userbytoken == null) return QuarkResult.warn("用户不存在,请先登录！");
+			User userbytoken = userService.getUserByToken(token);
+			if (userbytoken == null)
+				return QuarkResult.warn("用户不存在,请先登录！");
 
-            User user = userService.findOne(userbytoken.getId());
-            if (user.getEnable() != 1) return QuarkResult.warn("用户处于封禁状态！");
+			User user = userService.findOne(userbytoken.getId());
+			if (user.getEnable() != 1)
+				return QuarkResult.warn("用户处于封禁状态！");
 
-            postsService.savePosts(posts, labelId, user);
-            return QuarkResult.ok();
-        });
+			postsService.savePosts(posts, labelId, user);
+			return QuarkResult.ok();
+		});
 
-        return result;
-    }
+		return result;
+	}
 
-    @GetMapping()
-    public QuarkResult GetPosts(
-            @RequestParam(required = false, defaultValue = "") String search,
-            @RequestParam(required = false, defaultValue = "") String type,
-            @RequestParam(required = false, defaultValue = "1") int pageNo,
-            @RequestParam(required = false, defaultValue = "20") int length) {
-        QuarkResult result = restProcessor(() -> {
-            if (!type.equals("good") && !type.equals("top") && !type.equals(""))
-                return QuarkResult.error("类型错误!");
-            Page<Posts> page = postsService.getPostsByPage(type, search, pageNo - 1, length);
-            return QuarkResult.ok(page.getContent(), page.getTotalElements(), page.getNumberOfElements());
+	@GetMapping()
+	public QuarkResult GetPosts(@RequestParam(required = false, defaultValue = "") String search,
+			@RequestParam(required = false, defaultValue = "") String type,
+			@RequestParam(required = false, defaultValue = "1") int pageNo,
+			@RequestParam(required = false, defaultValue = "20") int length) {
+		QuarkResult result = restProcessor(() -> {
+			if (!type.equals("good") && !type.equals("top") && !type.equals(""))
+				return QuarkResult.error("类型错误!");
+			System.out.println("原搜索框内容为=====" + search);
+			Page<Posts> page = postsService.getPostsByPage(type, search, pageNo - 1, length);
+			return QuarkResult.ok(page.getContent(), page.getTotalElements(), page.getNumberOfElements());
 
-        });
+		});
 
-        return result;
+		return result;
 
-    }
+	}
 
+	@GetMapping("/detail/{postsid}")
+	public QuarkResult GetPostsDetail(@PathVariable("postsid") Integer postsid,
+			@RequestParam(required = false, defaultValue = "1") int pageNo,
+			@RequestParam(required = false, defaultValue = "20") int length) {
+		QuarkResult result = restProcessor(() -> {
+			HashMap<String, Object> map = new HashMap<String, Object>();
+			Posts posts = postsService.findOne(postsid);
+			if (posts == null)
+				return QuarkResult.error("帖子不存在");
+			map.put("posts", posts);
 
-    @GetMapping("/detail/{postsid}")
-    public QuarkResult GetPostsDetail(
-            @PathVariable("postsid") Integer postsid,
-            @RequestParam(required = false, defaultValue = "1") int pageNo,
-            @RequestParam(required = false, defaultValue = "20") int length) {
-        QuarkResult result = restProcessor(() -> {
-            HashMap<String, Object> map = new HashMap<String, Object>();
-            Posts posts = postsService.findOne(postsid);
-            if (posts == null) return QuarkResult.error("帖子不存在");
-            map.put("posts", posts);
+			Page<Reply> page = replyService.getReplyByPage(postsid, pageNo - 1, length);
+			map.put("replys", page.getContent());
 
-            Page<Reply> page = replyService.getReplyByPage(postsid, pageNo - 1, length);
-            map.put("replys", page.getContent());
+			return QuarkResult.ok(map, page.getTotalElements(), page.getNumberOfElements());
+		});
+		return result;
 
-            return QuarkResult.ok(map, page.getTotalElements(), page.getNumberOfElements());
-        });
-        return result;
+	}
 
-    }
+	@GetMapping("/label/{labelid}")
+	public QuarkResult GetPostsByLabel(@PathVariable("labelid") Integer labelid,
+			@RequestParam(required = false, defaultValue = "1") int pageNo,
+			@RequestParam(required = false, defaultValue = "20") int length) {
 
-    @GetMapping("/label/{labelid}")
-    public QuarkResult GetPostsByLabel(
-            @PathVariable("labelid") Integer labelid,
-            @RequestParam(required = false, defaultValue = "1") int pageNo,
-            @RequestParam(required = false, defaultValue = "20") int length) {
+		QuarkResult result = restProcessor(() -> {
+			Label label = labelService.findOne(labelid);
+			if (label == null)
+				return QuarkResult.error("标签不存在");
+			Page<Posts> page = postsService.getPostsByLabel(label, pageNo - 1, length);
+			return QuarkResult.ok(page.getContent(), page.getTotalElements(), page.getNumberOfElements());
 
-        QuarkResult result = restProcessor(() -> {
-            Label label = labelService.findOne(labelid);
-            if (label == null) return QuarkResult.error("标签不存在");
-            Page<Posts> page = postsService.getPostsByLabel(label, pageNo - 1, length);
-            return QuarkResult.ok(page.getContent(), page.getTotalElements(), page.getNumberOfElements());
+		});
 
-        });
+		return result;
 
-        return result;
-
-    }
+	}
 
 }

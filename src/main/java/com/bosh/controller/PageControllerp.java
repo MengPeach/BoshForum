@@ -18,7 +18,7 @@ public class PageControllerp {
         return "index";
     }
 
-    @RequestMapping("/label")
+    @RequestMapping("/label1")
     public String labelhome() {
         return "label/home";
     }

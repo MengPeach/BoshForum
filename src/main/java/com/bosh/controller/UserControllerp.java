@@ -45,6 +45,8 @@ public class UserControllerp {
     }
 
     @RequestMapping("/message")
-    public String message() { return "user/message"; }
+    public String message() { 
+    	return "user/message"; 
+    }
 
 }
